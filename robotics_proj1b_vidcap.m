@@ -1,4 +1,4 @@
-clc;
+clc; clear all;
 %% Consts
 r0 = [-2;0];
 r1 = [3;1];
@@ -8,7 +8,7 @@ thresh = .6;
 t = 0;
 maxcycles = 1000;
 arrowScale = 40;
-video_flag = true;
+video_flag = false;
 
 %% prepare video
 if video_flag

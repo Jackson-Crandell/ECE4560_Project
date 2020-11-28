@@ -10,7 +10,7 @@ thresh = .52;
 t = 0;
 maxcycles = 500;
 arrowScale = 40;
-video_flag = true;
+video_flag = false;
 
 %% prepare video
 if video_flag

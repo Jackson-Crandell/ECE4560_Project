@@ -10,7 +10,7 @@ thresh = .52;
 t = 0;
 maxcycles = 500;
 arrowScale = 40;
-video_flag = true;
+video_flag = false;
 
 %% prepare video
 if video_flag
@@ -22,6 +22,13 @@ if video_flag
     open(myVideo);
 end
 %% prepare plot
+% add consts
+a = [1;0];
+b = [0;-2];
+S1 = 0.9*[(1/sqrt(30)) 0;0 1];
+S2 = 0.9*[1 0;0 (1/sqrt(15))];
+A = (sqrt(2)/2)*[1 -1;1 1];
+
 D = (norm(r1-r0)+norm(r2-r0))/2;
 hold on
 
@@ -48,12 +55,6 @@ plot(r1(1),r1(2),'g.','MarkerSize',30)
 plot(r2(1),r2(2),'g.','MarkerSize',30)
 %plot(r0(1),r0(2),'b.','MarkerSize',30)
 
-% add consts
-a = [1;0];
-b = [0;-2];
-S1 = 0.9*[(1/sqrt(30)) 0;0 1];
-S2 = 0.9*[1 0;0 (1/sqrt(15))];
-A = (sqrt(2)/2)*[1 -1;1 1];
 
 
 
