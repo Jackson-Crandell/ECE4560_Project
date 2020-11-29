@@ -63,7 +63,7 @@ end
 
 
 % prepare video
-video_flag = 1;
+video_flag = 0;
 if video_flag
     fig = figure(1);
     %pause;

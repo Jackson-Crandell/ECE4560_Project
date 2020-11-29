@@ -1,18 +1,24 @@
-%% Problem 3 (Part 1)
+%% Problem 3 (Part 2e)
 clc;close all; clear all;
-
 % Constants
-p = -5:0.01:5;
-c = -5:0.01:5;
-[X,Y] = meshgrid(p,c);
+x = -5:0.01:5;
+y = -5:0.01:5;
+[X,Y] = meshgrid(x,y);
 l=0.07; 
-dt = 0.002; % step size or sampling frequency
-tf=3; % Final time
+dt=0.001; % step size or sampling frequency
+tf=30; % Final time
 iterations=length(0:dt:tf); %Number of iterations
 R = [0, -1; 1, 0];
-k1 = 1;
+k1 = 3;
+k2 = 1;
+zd = 2;
+a = [1, 0]';
+b = [0,-2]';
+S1 = .9 *[1/sqrt(30), 0;0,1];
+S2 = .9 *[1,0;0,1/sqrt(15)];
+A = sqrt(2)/2 * [1,-1;1,1];
+g = 0.2;
 thresh = .52;
-
 
 % Initialization
 r1_des = zeros(2,iterations);
@@ -51,18 +57,10 @@ r2 = [4 1];
 theta2(1,1)=theta2_0;
 D = (norm(r1-r0)+norm(r2-r0))/2;
 
-Z = zeros(length(p),length(c));
-for k = 1:length(p)
-    for j = 1:length(c)
-        Z(k,j) = (p(k)-r0(1))^2 + (c(j)-r0(2))^2; %Scalar Field
-    end
-end
-
-%Contour Plot
-Z = zeros(length(p),length(c));
-for k = 1:length(p)
-    for j = 1:length(c)
-        Z(k,j) = (p(k)-r0(1))^2 + (c(j)-r0(2))^2; %Scalar Field
+Z = zeros(length(x),length(y));
+for k = 1:length(x)
+    for j = 1:length(y)
+        Z(j,k) = 2 - exp(-(([x(k); y(j)] -a)'*S1*([x(k); y(j)]-a))) - exp(-([x(k); y(j)]-b)'*A'*S2*A*([x(k); y(j)]-b)) + g*norm([x(k); y(j)]);
     end
 end
 
@@ -71,40 +69,47 @@ video_flag = 0;
 if video_flag
     fig = figure(1);
     %pause;
-    myVideo = VideoWriter('animation3_1b.mp4', 'MPEG-4');
-    myVideo.FrameRate = 100;
-    myVideo.Quality = 100;
+    myVideo = VideoWriter('animation3_2e.mp4', 'MPEG-4');
+    myVideo.FrameRate = 20;
+    myVideo.Quality = 75;
     open(myVideo);
 end
 
+
 i = 2;
-animate = false;
+animate = true;
 while D > thresh && i < iterations
 
-    % Plotting (Animation)
+    % Animation
     if animate
-        fig=figure(1); 
-        clf;
-        pose=[x1(1,i-1);y1(1,i-1);theta1(1,i-1)];
-        pose2 = [x2(1,i-1);y2(1,i-1);theta2(1,i-1)];
-        [M,d] = contourf(X,Y,Z'); hold on
-        [C,h] = contour(X, Y, Z', [2 2], 'k', 'LineWidth', 3); 
-        clabel(C,h,2,'FontWeight','bold','FontSize',15) % Label 2 contour
-        plot(x1(1,1:i-1),y1(1,1:i-1),'r', 'LineWidth', 1.5)
-        plot(x2(1,1:i-1),y2(1,1:i-1),'r', 'LineWidth', 1.5)
-        plot(r0(1),r0(2),'ro'); %Plot source in red
-        plot_robot(pose,fig) %Plot the robot location
-        plot_robot(pose2,fig) %Plot the robot location
-        plot(r1(1),r1(2),'go')
-        plot(r2(1),r2(2),'go')
+        if(i<10 || (i<20 && mod(i,10)==0) || mod(i,50)==0)
+            fig=figure(1); 
+            clf;
+            pose=[x1(1,i-1);y1(1,i-1);theta1(1,i-1)];
+            pose2 = [x2(1,i-1);y2(1,i-1);theta2(1,i-1)];
+            C_levels = [0,2,1:.2:3.5]; 
+            [M,d] = contourf(X,Y,Z,C_levels); hold on
+            [C,h] = contour(X, Y, Z, [2 2], 'k', 'LineWidth', 3); 
+            clabel(C,h,2,'FontWeight','bold','FontSize',15) % Label 2 contour
+            plot(x1(1,1:i-1),y1(1,1:i-1),'r', 'LineWidth', 1.5)
+            plot(x2(1,1:i-1),y2(1,1:i-1),'r', 'LineWidth', 1.5)
+            plot_robot(pose,fig) %Plot the robot location
+            plot_robot(pose2,fig) %Plot the robot location
+            plot(r1(1),r1(2),'go')
+            plot(r2(1),r2(2),'go')
+            if video_flag
+                frame = getframe(gcf);
+                writeVideo(myVideo, frame);
+            end
+        end
     end
-    
+
     % Desired Trajectory
     w = (r1_des(:,i-1) - r2_des(:,i-1)) / norm(r1_des(:,i-1) - r2_des(:,i-1));
     v = R*w;
-    r1dot_des = k1*(norm(r1_des(:,i-1)-r0))^2*v;
+    r1dot_des = k1*(( 2 - exp(-((r1_des(:,i-1)) -a)'*S1*((r1_des(:,i-1))-a)) - exp(-((r1_des(:,i-1))-b)'*A'*S2*A*((r1_des(:,i-1))-b)) + g*norm(r1_des(:,i-1))) - zd)*v + k2*w;
+    r2dot_des = k1*(( 2 - exp(-((r2_des(:,i-1)) -a)'*S1*((r2_des(:,i-1))-a)) - exp(-((r2_des(:,i-1))-b)'*A'*S2*A*((r2_des(:,i-1))-b)) + g*norm(r2_des(:,i-1))) - zd)*v + k2*w;
     r1_des(:,i) = r1_des(:,i-1) + r1dot_des*dt;
-    r2dot_des = k1*(norm(r2_des(:,i-1)-r0))^2*v;
     r2_des(:,i) = r2_des(:,i-1) + r2dot_des*dt;
     
     %Robot1
@@ -150,17 +155,12 @@ while D > thresh && i < iterations
     %Update D
     D = (norm(r1-r0)+norm(r2-r0))/2;
 
-    if video_flag
-        frame = getframe(gcf);
-        writeVideo(myVideo, frame);
-    end
-    
     i = i + 1;
 
 end
 
 %% Plotting 
-plots = true;
+plots = false;
 if plots 
     xMIN = -5;
     xMAX = 5;
@@ -169,18 +169,21 @@ if plots
 
     xlim([xMIN xMAX])
     ylim([yMIN yMAX])
+    
     %Contour Plot
-    [M,d] = contourf(X,Y,Z'); hold on
-    [C,h] = contour(X, Y, Z', [2 2], 'k', 'LineWidth', 3); 
+    C_levels = [0,2,1:.2:3.5]; 
+    [M,d] = contourf(X,Y,Z,C_levels); hold on
+    [C,h] = contour(X, Y, Z, [2 2], 'k', 'LineWidth', 3); 
     clabel(C,h,2,'FontWeight','bold','FontSize',15) % Label 2 contour
-    plot(r0(1),r0(2),'ro'); %Plot source in red
     fig=figure(1);
-    A = [2,50,100,200,500];
-    arrowScale = [.25,.1,.1,.15,.5];
-    drawArrows = false;
+    A = [2,500,2000,5000,8000,12000];
+    arrowScale = [.25,.25,.25,.5,.5,.5];
+    drawArrows = true;
+    
     %Plot Trajectory
     plot(x1(1,1:end),y1(1,1:end),'r', 'LineWidth', 1.5)
     plot(x2(1,1:end),y2(1,1:end),'r', 'LineWidth', 1.5)
+    
     for j = 1:length(A)
         for i = A(j) 
             pose=[x1(1,i-1);y1(1,i-1);theta1(1,i-1)];

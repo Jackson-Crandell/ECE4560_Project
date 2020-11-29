@@ -52,6 +52,14 @@ theta2(1,1)=theta2_0;
 
 D = (norm(r1-r0)+norm(r2-r0))/2;
 
+%Contour Plot
+Z = zeros(length(p),length(c));
+for k = 1:length(p)
+    for j = 1:length(c)
+        Z(k,j) = (p(k)-r0(1))^2 + (c(j)-r0(2))^2; %Scalar Field
+    end
+end
+
 % prepare video
 video_flag = 0;
 if video_flag
@@ -157,12 +165,6 @@ if plots
     xlim([xMIN xMAX])
     ylim([yMIN yMAX])
     %Contour Plot
-    Z = zeros(length(p),length(c));
-    for k = 1:length(p)
-        for j = 1:length(c)
-            Z(k,j) = (p(k)-r0(1))^2 + (c(j)-r0(2))^2; %Scalar Field
-        end
-    end
     [M,d] = contourf(X,Y,Z'); hold on
     [C,h] = contour(X, Y, Z', [2 2], 'k', 'LineWidth', 3); 
     clabel(C,h,2,'FontWeight','bold','FontSize',15) % Label 2 contour
