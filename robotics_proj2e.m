@@ -46,10 +46,10 @@ y = linspace(yMIN,yMAX);
 Z = zeros(length(y),length(x));
 for i = 1:length(x)
     for j = 1:length(y)
-        Z(j,i) = 2-exp(-([X(1,i);Y(j,1)]-a)'*S1*([X(1,i);Y(j,1)]-a))-exp(-([X(1,i);Y(j,1)]-b)'*A'*S2*A*([X(1,i);Y(j,1)]-b))+norm([X(1,i);Y(j,1)]);
+        Z(j,i) = 2-exp(-([X(1,i);Y(j,1)]-a)'*S1*([X(1,i);Y(j,1)]-a))-exp(-([X(1,i);Y(j,1)]-b)'*A'*S2*A*([X(1,i);Y(j,1)]-b))+g*norm([X(1,i);Y(j,1)]);
     end
 end
-contourf(X,Y,Z,100)
+contourf(X,Y,Z,20)
 
 plot(r1(1),r1(2),'g.','MarkerSize',30)
 plot(r2(1),r2(2),'g.','MarkerSize',30)
