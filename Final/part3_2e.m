@@ -77,7 +77,7 @@ end
 
 
 i = 2;
-animate = true;
+animate = false;
 while D > thresh && i < iterations
 
     % Animation
@@ -160,7 +160,7 @@ while D > thresh && i < iterations
 end
 
 %% Plotting 
-plots = false;
+plots = true;
 if plots 
     xMIN = -5;
     xMAX = 5;
